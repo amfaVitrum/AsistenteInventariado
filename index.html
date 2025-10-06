@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Inventario</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-bg-color: #f8f9fa;
+            --dark-text-color: #34495e;
+            --light-text-color: #7f8c8d;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg-color);
+            color: var(--dark-text-color);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+        }
+
+        h1 {
+            color: var(--dark-text-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .form-section {
+            background-color: #fdfdfd;
+            border: 2px solid #ecf0f1;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+            color: var(--dark-text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-field input, .form-field textarea {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95em;
+            transition: border-color 0.3s;
+            text-transform: uppercase;
+        }
+
+        .form-field input:focus, .form-field textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-field input::placeholder, .form-field textarea::placeholder {
+            text-transform: none;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-option {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            background-color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .btn-option:hover {
+            border-color: var(--primary-color);
+            background-color: #f0f8ff;
+        }
+
+        .btn-option.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-label {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: #fff;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+        .file-upload-label:hover {
+            background-color: #2980b9;
+        }
+
+        .preview-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .add-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .inventory-list {
+            margin-top: 40px;
+        }
+
+        .inventory-list h2 {
+            color: var(--dark-text-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .inventory-table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .inventory-table th {
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .inventory-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 0.85em;
+        }
+
+        .inventory-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .inventory-table img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        .export-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .export-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .export-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--light-text-color);
+        }
+
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dimensions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .inventory-table {
+                font-size: 0.8em;
+            }
+
+            .inventory-table th,
+            .inventory-table td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><i class="fas fa-clipboard-list"></i> Registro de Inventario</h1>
+
+        <!-- FORMULARIO -->
+        <div class="form-section">
+            <h3 style="margin-bottom: 20px; color: var(--primary-color);">
+                <i class="fas fa-plus-circle"></i> Agregar Nuevo Ítem
+            </h3>
+
+            <div class="form-grid">
+                <!-- Ubicación -->
+                <div class="form-field" style="grid-column: 1 / -1;">
+                    <label>Ubicación *</label>
+                    <div class="button-group" id="ubicacionGroup">
+                        <button type="button" class="btn-option" onclick="selectOption('ubicacion', 'EDIFICIO')">EDIFICIO</button>
+                        <button type="button" class="btn-option" onclick="selectOption('ubicacion', 'PLANTA')">PLANTA</button>
+                        <button type="button" class="btn-option" onclick="selectOption('ubicacion', 'LOCAL ALQUILER')">LOCAL ALQUILER</button>
+                        <button type="button" class="btn-option" onclick="selectOption('ubicacion', 'NAVE 1')">NAVE 1</button>
+                        <button type="button" class="btn-option" onclick="selectOption('ubicacion', 'NAVE 2')">NAVE 2</button>
+                    </div>
+                </div>
+
+                <!-- Área -->
+                <div class="form-field">
+                    <label for="area">Área *</label>
+                    <input type="text" id="area" placeholder="Ej: Almacén, Oficina, etc.">
+                </div>
+
+                <!-- N° Piso -->
+                <div class="form-field">
+                    <label for="piso">N° Piso *</label>
+                    <input type="number" id="piso" placeholder="1, 2, 3..." min="1">
+                </div>
+
+                <!-- Descripción -->
+                <div class="form-field" style="grid-column: 1 / -1;">
+                    <label for="descripcion">Descripción *</label>
+                    <textarea id="descripcion" rows="2" placeholder="Descripción del activo"></textarea>
+                </div>
+
+                <!-- Marca -->
+                <div class="form-field">
+                    <label for="marca">Marca</label>
+                    <input type="text" id="marca" placeholder="Marca del producto">
+                </div>
+
+                <!-- Modelo -->
+                <div class="form-field">
+                    <label for="modelo">Modelo</label>
+                    <input type="text" id="modelo" placeholder="Modelo">
+                </div>
+
+                <!-- Serie -->
+                <div class="form-field">
+                    <label for="serie">Serie</label>
+                    <input type="text" id="serie" placeholder="Número de serie">
+                </div>
+
+                <!-- Cantidad -->
+                <div class="form-field">
+                    <label for="cantidad">Cantidad *</label>
+                    <input type="number" id="cantidad" placeholder="1, 2, 3..." min="1" value="1">
+                </div>
+
+                <!-- Dimensiones -->
+                <div class="form-field" style="grid-column: 1 / -1;">
+                    <label>Dimensiones (cm)</label>
+                    <div class="dimensions-grid">
+                        <input type="number" id="alto" placeholder="Alto" step="0.01">
+                        <input type="number" id="ancho" placeholder="Ancho" step="0.01">
+                        <input type="number" id="largo" placeholder="Largo" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Estado -->
+                <div class="form-field" style="grid-column: 1 / -1;">
+                    <label>Estado *</label>
+                    <div class="button-group" id="estadoGroup">
+                        <button type="button" class="btn-option" onclick="selectOption('estado', 'Bueno')">Bueno</button>
+                        <button type="button" class="btn-option" onclick="selectOption('estado', 'Regular')">Regular</button>
+                        <button type="button" class="btn-option" onclick="selectOption('estado', 'Malo')">Malo</button>
+                    </div>
+                </div>
+
+                <!-- TPA -->
+                <div class="form-field" style="grid-column: 1 / -1;">
+                    <label>TPA (Tipo de Activo) *</label>
+                    <div class="button-group" id="tpaGroup">
+                        <button type="button" class="btn-option" onclick="selectOption('tpa', 'COMPUTO')">COMPUTO</button>
+                        <button type="button" class="btn-option" onclick="selectOption('tpa', 'MUEBLES')">MUEBLES</button>
+                        <button type="button" class="btn-option" onclick="selectOption('tpa', 'OTROS EQUIPOS')">OTROS EQUIPOS</button>
+                    </div>
+                </div>
+
+                <!-- Uso del activo -->
+                <div class="form-field" style="grid-column: 1 / -1;">
+                    <label for="usuario">Uso del activo / Usuario *</label>
+                    <input type="text" id="usuario" placeholder="Nombre del usuario o uso del activo">
+                </div>
+
+                <!-- Foto -->
+                <div class="form-field" style="grid-column: 1 / -1;">
+                    <label>Foto</label>
+                    <label for="foto" class="file-upload-label">
+                        <i class="fas fa-camera"></i> Tomar/Subir Foto
+                    </label>
+                    <input type="file" id="foto" accept="image/*" capture="environment" onchange="previewPhoto(this)">
+                    <div class="preview-container" id="previewContainer"></div>
+                </div>
+            </div>
+
+            <button class="add-btn" onclick="addItem()">
+                <i class="fas fa-plus"></i> Agregar al Inventario
+            </button>
+        </div>
+
+        <!-- LISTA DE INVENTARIO -->
+        <div class="inventory-list">
+            <h2><i class="fas fa-list"></i> Ítems Registrados (<span id="itemCount">0</span>)</h2>
+            <div id="inventoryTableContainer"></div>
+            <button class="export-btn" id="exportBtn" onclick="exportToExcel()" style="display: none;">
+                <i class="fas fa-file-excel"></i> Exportar a Excel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let inventory = [];
+        let selectedOptions = {
+            ubicacion: '',
+            estado: '',
+            tpa: ''
+        };
+        let currentPhoto = null;
+        let editingIndex = -1;
+
+        function selectOption(group, value) {
+            selectedOptions[group] = value;
+            const buttons = document.querySelectorAll(`#${group}Group .btn-option`);
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === value) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function previewPhoto(input) {
+            const container = document.getElementById('previewContainer');
+            container.innerHTML = '';
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhoto = e.target.result;
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-image';
+                    container.appendChild(img);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addItem() {
+            // Validación
+            if (!selectedOptions.ubicacion) {
+                alert('Por favor, selecciona una ubicación');
+                return;
+            }
+            if (!document.getElementById('area').value) {
+                alert('Por favor, ingresa el área');
+                return;
+            }
+            if (!document.getElementById('piso').value) {
+                alert('Por favor, ingresa el número de piso');
+                return;
+            }
+            if (!document.getElementById('descripcion').value) {
+                alert('Por favor, ingresa una descripción');
+                return;
+            }
+            if (!document.getElementById('cantidad').value) {
+                alert('Por favor, ingresa la cantidad');
+                return;
+            }
+            if (!selectedOptions.estado) {
+                alert('Por favor, selecciona un estado');
+                return;
+            }
+            if (!selectedOptions.tpa) {
+                alert('Por favor, selecciona un TPA');
+                return;
+            }
+            if (!document.getElementById('usuario').value) {
+                alert('Por favor, ingresa el uso del activo o usuario');
+                return;
+            }
+
+            const item = {
+                ubicacion: selectedOptions.ubicacion,
+                area: document.getElementById('area').value,
+                piso: document.getElementById('piso').value,
+                descripcion: document.getElementById('descripcion').value,
+                marca: document.getElementById('marca').value || '',
+                modelo: document.getElementById('modelo').value || '',
+                serie: document.getElementById('serie').value || '',
+                cantidad: document.getElementById('cantidad').value,
+                alto: document.getElementById('alto').value || 'N/A',
+                ancho: document.getElementById('ancho').value || 'N/A',
+                largo: document.getElementById('largo').value || 'N/A',
+                estado: selectedOptions.estado,
+                tpa: selectedOptions.tpa,
+                usuario: document.getElementById('usuario').value,
+                foto: currentPhoto
+            };
+
+            if (editingIndex >= 0) {
+                inventory[editingIndex] = item;
+                editingIndex = -1;
+            } else {
+                inventory.push(item);
+            }
+
+            clearForm();
+            renderInventory();
+        }
+
+        function clearForm() {
+            document.getElementById('area').value = '';
+            document.getElementById('piso').value = '';
+            document.getElementById('descripcion').value = '';
+            document.getElementById('marca').value = '';
+            document.getElementById('modelo').value = '';
+            document.getElementById('serie').value = '';
+            document.getElementById('cantidad').value = '1';
+            document.getElementById('alto').value = '';
+            document.getElementById('ancho').value = '';
+            document.getElementById('largo').value = '';
+            document.getElementById('usuario').value = '';
+            document.getElementById('foto').value = '';
+            document.getElementById('previewContainer').innerHTML = '';
+            
+            selectedOptions = { ubicacion: '', estado: '', tpa: '' };
+            document.querySelectorAll('.btn-option').forEach(btn => btn.classList.remove('active'));
+            currentPhoto = null;
+        }
+
+        function renderInventory() {
+            const container = document.getElementById('inventoryTableContainer');
+            const itemCount = document.getElementById('itemCount');
+            itemCount.textContent = inventory.length;
+
+            if (inventory.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <p>No hay ítems registrados aún. Agrega el primer ítem usando el formulario.</p>
+                    </div>
+                `;
+                document.getElementById('exportBtn').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('exportBtn').style.display = 'block';
+
+            let html = `
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Ubicación</th>
+                            <th>Área</th>
+                            <th>Piso</th>
+                            <th>Descripción</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Serie</th>
+                            <th>Cant.</th>
+                            <th>Dimensiones</th>
+                            <th>Estado</th>
+                            <th>TPA</th>
+                            <th>Usuario</th>
+                            <th>Foto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            inventory.forEach((item, index) => {
+                const dimensiones = `${item.alto}x${item.ancho}x${item.largo}`;
+                const estadoSigla = item.estado === 'Bueno' ? 'B' : item.estado === 'Regular' ? 'R' : 'M';
+                const tpaSigla = item.tpa === 'COMPUTO' ? 'EC' : item.tpa === 'MUEBLES' ? 'ME' : 'OE';
+                
+                html += `
+                    <tr>
+                        <td><strong>${index + 1}</strong></td>
+                        <td>${item.ubicacion}</td>
+                        <td>${item.area}</td>
+                        <td>${item.piso}</td>
+                        <td>${item.descripcion}</td>
+                        <td>${item.marca}</td>
+                        <td>${item.modelo}</td>
+                        <td>${item.serie}</td>
+                        <td>${item.cantidad}</td>
+                        <td>${dimensiones}</td>
+                        <td>${estadoSigla}</td>
+                        <td>${tpaSigla}</td>
+                        <td>${item.usuario}</td>
+                        <td>${item.foto ? `<img src="${item.foto}" alt="Foto">` : '-'}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-edit" onclick="editItem(${index})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-delete" onclick="deleteItem(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function editItem(index) {
+            const item = inventory[index];
+            editingIndex = index;
+
+            document.getElementById('area').value = item.area;
+            document.getElementById('piso').value = item.piso;
+            document.getElementById('descripcion').value = item.descripcion;
+            document.getElementById('marca').value = item.marca;
+            document.getElementById('modelo').value = item.modelo;
+            document.getElementById('serie').value = item.serie;
+            document.getElementById('cantidad').value = item.cantidad;
+            document.getElementById('alto').value = item.alto !== 'N/A' ? item.alto : '';
+            document.getElementById('ancho').value = item.ancho !== 'N/A' ? item.ancho : '';
+            document.getElementById('largo').value = item.largo !== 'N/A' ? item.largo : '';
+            document.getElementById('usuario').value = item.usuario;
+
+            selectOption('ubicacion', item.ubicacion);
+            selectOption('estado', item.estado);
+            selectOption('tpa', item.tpa);
+
+            if (item.foto) {
+                currentPhoto = item.foto;
+                const container = document.getElementById('previewContainer');
+                container.innerHTML = `<img src="${item.foto}" class="preview-image">`;
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteItem(index) {
+            if (confirm('¿Estás seguro de eliminar este ítem?')) {
+                inventory.splice(index, 1);
+                renderInventory();
+            }
+        }
+
+        async function exportToExcel() {
+            if (inventory.length === 0) {
+                alert('No hay ítems para exportar');
+                return;
+            }
+
+            const exportBtn = document.getElementById('exportBtn');
+            exportBtn.disabled = true;
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando archivo...';
+
+            try {
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Inventario');
+
+                // Encabezados
+                const headerRow = worksheet.addRow([
+                    'Item', 'Ubicación', 'Área', 'N° Piso', 'Descripción', 'Marca', 
+                    'Modelo', 'Serie', 'Cantidad', 'Alto', 'Ancho', 'Largo', 
+                    'Estado', 'TPA', 'Uso del activo', 'Foto'
+                ]);
+
+                headerRow.eachCell(cell => {
+                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3498DB' } };
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                });
+
+                // Ajustar anchos de columna
+                worksheet.getColumn(1).width = 8;
+                worksheet.getColumn(2).width = 18;
+                worksheet.getColumn(3).width = 15;
+                worksheet.getColumn(4).width = 10;
+                worksheet.getColumn(5).width = 30;
+                worksheet.getColumn(6).width = 15;
+                worksheet.getColumn(7).width = 15;
+                worksheet.getColumn(8).width = 18;
+                worksheet.getColumn(9).width = 10;
+                worksheet.getColumn(10).width = 10;
+                worksheet.getColumn(11).width = 10;
+                worksheet.getColumn(12).width = 10;
+                worksheet.getColumn(13).width = 10;
+                worksheet.getColumn(14).width = 12;
+                worksheet.getColumn(15).width = 25;
+                worksheet.getColumn(16).width = 20;
+
+                // Agregar datos
+                for (let i = 0; i < inventory.length; i++) {
+                    const item = inventory[i];
+                    const estadoSigla = item.estado === 'Bueno' ? 'B' : item.estado === 'Regular' ? 'R' : 'M';
+                    const tpaSigla = item.tpa === 'COMPUTO' ? 'EC' : item.tpa === 'MUEBLES' ? 'ME' : 'OE';
+
+                    const row = worksheet.addRow([
+                        i + 1,
+                        item.ubicacion,
+                        item.area,
+                        item.piso,
+                        item.descripcion,
+                        item.marca,
+                        item.modelo,
+                        item.serie,
+                        item.cantidad,
+                        item.alto,
+                        item.ancho,
+                        item.largo,
+                        estadoSigla,
+                        tpaSigla,
+                        item.usuario,
+                        ''
+                    ]);
+
+                    row.alignment = { vertical: 'middle', wrapText: true };
+
+                    // Agregar foto si existe
+                    if (item.foto) {
+                        row.height = 80;
+                        const imageId = workbook.addImage({
+                            base64: item.foto,
+                            extension: 'jpeg'
+                        });
+                        worksheet.addImage(imageId, {
+                            tl: { col: 15, row: row.number - 0.98 },
+                            ext: { width: 100, height: 75 }
+                        });
+                    }
+                }
+
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { 
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+                });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                
+                const fecha = new Date().toISOString().split('T')[0];
+                link.download = `Inventario_${fecha}.xlsx`;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (error) {
+                console.error('Error al generar Excel:', error);
+                alert('Ocurrió un error al generar el archivo Excel.');
+            } finally {
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Exportar a Excel';
+            }
+        }
+
+        // Inicializar
+        renderInventory();
+    </script>
+
+</body>
+</html>
